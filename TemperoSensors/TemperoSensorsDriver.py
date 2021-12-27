@@ -20,72 +20,74 @@ class TemperoSensorsDriver:
         # FirebaseDatabase Reference
         self.currentDBReference = db.reference("/")
         self.currentDBReference = self.currentDBReference.child(str(sensorID) + "/")
-
-        # Getting all of the set-up data
-        self.sensorID = sensorID
-
+        
         self.getAllTemperoSensorDatabaseData()
-                
+        self.getCurrentTemprature()
+           
         self.temperoRefreshToken = "1//06h5wjwU7e4LHCgYIARAAGAYSNwF-L9Irtp-otUvdGwqkeabey3z20mtiSla5rpyI60nj1q93DJ61Vzs6ZRu683qYOtfC7YLtlYg"
         self.temperoThermostatDeviceID = "AVPHwEvPDSwQV6XAQLjrO9QQIxurpT5Vs7ns0ZkWonqnN6afdhDUklji7wXP45t9HOuQxRE8Qkee5UxByfPNkJ0CNzqpXg"
         self.temperoGCPProjectID = "4acc3863-dacf-446b-9b56-a339a4ea8f45"
         self.temperoCurrentThermostatMode = None
         self.temperoTempratureDisplay = TemperoSensorsDisplay.TemperoSensorsDisplay()
         
+        self.getCurrentNestThermostatInformation()
+        
+        # Getting all of the set-up data
+        self.sensorID = sensorID
+        
+        
     def getAllTemperoSensorDatabaseData(self):
         dictionarySensorDataValues = self.currentDBReference.get()
 
         for oneSensorDataName in dictionarySensorDataValues:
-            if oneSensorDataName == "End_Time":
-                self.end_time = dictionarySensorDataValues[oneSensorDataName]
-                if self.end_time == 0:
-                    self.end_time = 24
-            elif oneSensorDataName == "Location":
+            if oneSensorDataName == "Location":
                 self.location = dictionarySensorDataValues[oneSensorDataName]
-            elif oneSensorDataName == "Lower_Bound":
-                self.lower_bound = dictionarySensorDataValues[oneSensorDataName]
             elif oneSensorDataName == "Name":
                 self.name = dictionarySensorDataValues[oneSensorDataName]
-            elif oneSensorDataName == "Start_Time":
-                self.start_time = dictionarySensorDataValues[oneSensorDataName]
-                
-                if self.start_time == 0:
-                    self.start_time = 24
-            elif oneSensorDataName == "Upper_Bound":
-                self.upper_bound = dictionarySensorDataValues[oneSensorDataName]
+            elif oneSensorDataName == "New_Temprature":
+                self.new_tempero_temprature = dictionarySensorDataValues[oneSensorDataName]
             elif oneSensorDataName == "Sensor_Value":
                 self.sensor_value = dictionarySensorDataValues[oneSensorDataName]
+            elif oneSensorDataName == "Sensor_Enabled":
+                self.sensor_enabled = bool(dictionarySensorDataValues[oneSensorDataName])
             elif oneSensorDataName == "Sensor_Value_Date":
                 self.sensor_value_date = dictionarySensorDataValues[oneSensorDataName]
-    def updateCurrentTemprature(self):
+    def updateCurrentData(self):
         while True:
-            self.getCurrentTemprature()
-            time.sleep(30)
+            try:
+                self.getAllTemperoSensorDatabaseData()
+                self.getCurrentTemprature()
+                self.getCurrentNestThermostatInformation()
+                
+            except:
+                print("ERROR Update Current Data")
+                
+            time.sleep(10)
+            
             
     def startTemperoExamination(self):
 
         while True:
-            self.getAllTemperoSensorDatabaseData()
+            try:
+                if self.sensor_enabled: 
+                
+                    # This makes sure the time is within the schedule
+                    print("Checking Moniter Data")
+                    
+                    if self.new_tempero_temprature > self.sensor_value:
+                        self.adjustNestThermostat(self.temperoCurrentThermostatTemprature + (abs(self.new_tempero_temprature - self.sensor_value) / 2))
+                    elif self.new_tempero_temprature < self.sensor_value:
+                        self.adjustNestThermostat(self.temperoCurrentThermostatTemprature - (abs(self.new_tempero_temprature - self.sensor_value) / 2))
+                    else:
+                        print("Temperatures are the exact same")
+                    
+                    # Every 5 minutes check the current nest temprature
+                    time.sleep(300)
+                else:
+                    time.sleep(1)
+            except:
+                print("ERROR Monitering Data")
             
-            currentPacific24HRTime = int(datetime.now(pytz.timezone("US/Pacific")).strftime("%H"))
-            
-            # This makes sure the time is within the schedule
-            if self.start_time <= currentPacific24HRTime and currentPacific24HRTime < self.end_time:
-                print("Checking Moniter Data")
-                self.moniterTemperoTemprature()
-            # Every 10 minutes check the current nest temprature
-            time.sleep(600)
-
-    def moniterTemperoTemprature(self):
-        print("Monitering")
-        if self.lower_bound >= self.sensor_value:
-            # Sets current temprature to lower_bound and adds 10 degrees
-            self.adjustNestThermostat(self.lower_bound+10)
-        elif self.upper_bound <= self.sensor_value:
-            # Sets current temprature to upper_bound and decreases 10 degrees
-            self.adjustNestThermostat(self.upper_bound-10)
-
-
     def getNewAccessCodeNestThermostat(self):
         nestThermostatAccessCodeRequest = requests.post("https://www.googleapis.com/oauth2/v4/token?client_id=1069978862635-epurbtin9o4s53i45gftds4tq88e0jpf.apps.googleusercontent.com&client_secret=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&refresh_token=" + self.temperoRefreshToken + "&grant_type=refresh_token")
         return str(nestThermostatAccessCodeRequest.json()["access_token"])
@@ -93,12 +95,16 @@ class TemperoSensorsDriver:
 
         nestThermostatRequestInformationRequest = requests.get("https://smartdevicemanagement.googleapis.com/v1/enterprises/" + self.temperoGCPProjectID + "/devices/" + self.temperoThermostatDeviceID, headers={"Content-Type":"application/json", "Authorization":("Bearer " + self.getNewAccessCodeNestThermostat())})
         nestThermostatInformationJSON = nestThermostatRequestInformationRequest.json()
-
+        
         self.temperoCurrentThermostatMode = nestThermostatInformationJSON["traits"]["sdm.devices.traits.ThermostatMode"]["mode"]
-
+        self.temperoCurrentThermostatTemprature = (nestThermostatInformationJSON["traits"]["sdm.devices.traits.Temperature"]["ambientTemperatureCelsius"] * (9/5)) + 32
+        
+        temperoNestThermostatDBReference = self.currentDBReference.parent.child("Nest_Thermostat")
+        temperoNestThermostatDBReference.child("Temperature").set((round((nestThermostatInformationJSON["traits"]["sdm.devices.traits.Temperature"]["ambientTemperatureCelsius"] * (9/5)) + 32, 2)))
+        temperoNestThermostatDBReference.child("Mode").set(nestThermostatInformationJSON["traits"]["sdm.devices.traits.ThermostatMode"]["mode"])
+        temperoNestThermostatDBReference.child("Data_Date").set(datetime.now(pytz.timezone("US/Pacific")).strftime("%c"))
+        
     def adjustNestThermostat(self, newTemprature):
-
-        self.getCurrentNestThermostatInformation()
        
         settingNewThermostatTempratureJSONData = {
                 "command": "sdm.devices.commands.ThermostatTemperatureSetpoint.SetHeat",
@@ -110,7 +116,7 @@ class TemperoSensorsDriver:
         temperoSetTempratureResponse = requests.post("https://smartdevicemanagement.googleapis.com/v1/enterprises/" + self.temperoGCPProjectID + "/devices/" + self.temperoThermostatDeviceID + ":executeCommand", json=settingNewThermostatTempratureJSONData, headers={"Content-Type":"application/json", "Authorization":("Bearer " + self.getNewAccessCodeNestThermostat())})
         
         if len(temperoSetTempratureResponse.json()) == 0:
-           print("Adjusted Thermostat Successfully for " + self.temperoCurrentThermostatMode)
+           print("Adjusted Thermostat Successfully for " + str(newTemprature) + " in " + self.temperoCurrentThermostatMode + " mode")
         else:
             print("ERROR Adjusting Nest Thermostat")
             print(temperoSetTempratureResponse.json())
@@ -128,23 +134,21 @@ class TemperoSensorsDriver:
             
             self.sensor_value = (round(((float(finalTempratureNumber) / 1000.0) * 1.8) + 32, 2)) # Converts to fahrenheit
             self.currentDBReference.child("Sensor_Value").set(self.sensor_value)
-            print(self.sensor_value)
         else:
-            print(currentTempratureError)
-        print("Got Current Temprature")
-        
+            print(currentTempratureError)        
 
         self.sensor_value_date = datetime.now(pytz.timezone("US/Pacific")).strftime("%c")
         self.currentDBReference.child("Sensor_Value_Date").set(self.sensor_value_date)
 
     def displayTemperoSensor(self):
-       while True:
-           
-           self.temperoTempratureDisplay.displayTemperoTemprature(self.sensor_value)
-
+        while True:
+            try:
+                self.temperoTempratureDisplay.displayTemperoTemprature(self.sensor_value)
+            except:
+                print("ERROR Display")
 temperoMainDriverObject = TemperoSensorsDriver("7645b9f9")
 
-_thread.start_new_thread(temperoMainDriverObject.startTemperoExamination, ())
+_thread.start_new_thread(temperoMainDriverObject.updateCurrentData, ())
 _thread.start_new_thread(temperoMainDriverObject.displayTemperoSensor, ())
-_thread.start_new_thread(temperoMainDriverObject.updateCurrentTemprature, ())
+_thread.start_new_thread(temperoMainDriverObject.startTemperoExamination, ())
 
