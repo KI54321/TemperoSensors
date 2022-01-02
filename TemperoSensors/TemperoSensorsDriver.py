@@ -15,7 +15,8 @@ class TemperoSensorsDriver:
 
     def __init__(self, sensorID):
         # Authenticates the TemperoSensors Firebase Database Application
-        firebase_admin.initialize_app(firebase_admin.credentials.Certificate("/home/pi/Desktop/Raspberry_Pi_Programs/TemperoSensors/temperosensors-firebase-adminsdk-49k00-4fdc22e590.json"), {"databaseURL":"https://temperosensors-default-rtdb.firebaseio.com/"})
+        firebase_admin.initialize_app(firebase_admin.credentials.Certificate("/temperosensors-firebase-adminsdk-49k00-4fdc22e590.json"), {"databaseURL":"https://temperosensors-default-rtdb.firebaseio.com/"})
+
 
         # FirebaseDatabase Reference
         self.currentDBReference = db.reference("/")
@@ -52,12 +53,14 @@ class TemperoSensorsDriver:
                 self.sensor_enabled = bool(dictionarySensorDataValues[oneSensorDataName])
             elif oneSensorDataName == "Sensor_Value_Date":
                 self.sensor_value_date = dictionarySensorDataValues[oneSensorDataName]
+    
     def updateCurrentData(self):
         while True:
             try:
                 self.getAllTemperoSensorDatabaseData()
                 self.getCurrentTemprature()
                 self.getCurrentNestThermostatInformation()
+                
                 
             except:
                 print("ERROR Update Current Data")
@@ -69,7 +72,8 @@ class TemperoSensorsDriver:
 
         while True:
             try:
-                if self.sensor_enabled: 
+                if self.sensor_enabled:
+                    
                 
                     # This makes sure the time is within the schedule
                     print("Checking Moniter Data")
@@ -151,4 +155,5 @@ temperoMainDriverObject = TemperoSensorsDriver("7645b9f9")
 _thread.start_new_thread(temperoMainDriverObject.updateCurrentData, ())
 _thread.start_new_thread(temperoMainDriverObject.displayTemperoSensor, ())
 _thread.start_new_thread(temperoMainDriverObject.startTemperoExamination, ())
+
 

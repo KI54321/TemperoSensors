@@ -30,11 +30,11 @@ class RaspberryPiVitals:
             try:
                 self.rpiVitalsDB.child("CPU Temperature").set(self.raspberryPiVitalsCPU.temperature)
                 self.rpiVitalsDB.child("CPU Load Average").set(self.raspberryPiVitalsLoad.load_average)
-                
-                currentRPILocationCoordinates = geocoder.ipinfo("me").latlng
-                if currentRPILocationCoordinates != None:
-                    self.rpiVitalsDB.child("Location (Lat)").set(currentRPILocationCoordinates[0])
-                    self.rpiVitalsDB.child("Location (Long)").set(currentRPILocationCoordinates[-1])
+#                 
+#                 currentRPILocationCoordinates = geocoder.ipinfo("me").latlng
+#                 if currentRPILocationCoordinates != None:
+#                     self.rpiVitalsDB.child("Location (Lat)").set(currentRPILocationCoordinates[0])
+#                     self.rpiVitalsDB.child("Location (Long)").set(currentRPILocationCoordinates[-1])
                 self.rpiVitalsDB.child("Date & Time").set(str(datetime.datetime.now()))
                 
                 if self.raspberryPiVitalsCPU.temperature >= 90:
