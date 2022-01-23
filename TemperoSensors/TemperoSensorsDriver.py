@@ -25,7 +25,7 @@ class TemperoSensorsDriver:
         self.getAllTemperoSensorDatabaseData()
         self.getCurrentTemprature()
            
-        self.temperoRefreshToken = "1//06h5wjwU7e4LHCgYIARAAGAYSNwF-L9Irtp-otUvdGwqkeabey3z20mtiSla5rpyI60nj1q93DJ61Vzs6ZRu683qYOtfC7YLtlYg"
+        self.temperoRefreshToken = "1//06ET53BQgeSfdCgYIARAAGAYSNwF-L9IrDXXX3IIHQgA26WXugYWCKC0b5Tq6ynBJNxkvmLQHGwlppbXzM48dPa_FsvyNYs3PXo4"
         self.temperoThermostatDeviceID = "AVPHwEvPDSwQV6XAQLjrO9QQIxurpT5Vs7ns0ZkWonqnN6afdhDUklji7wXP45t9HOuQxRE8Qkee5UxByfPNkJ0CNzqpXg"
         self.temperoGCPProjectID = "4acc3863-dacf-446b-9b56-a339a4ea8f45"
         self.temperoCurrentThermostatMode = None
