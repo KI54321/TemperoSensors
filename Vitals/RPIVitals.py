@@ -10,11 +10,11 @@ import datetime
 class RaspberryPiVitals:
     
     def __init__(self):
-        firebase_admin.initialize_app(firebase_admin.credentials.Certificate("/home/pi/Desktop/Raspberry_Pi_Programs/Vitals/rpi-vitals-firebase-adminsdk-o250d-c3ab522ee5.json"), {"databaseURL":"https://rpi-vitals-default-rtdb.firebaseio.com/"})
+        firebase_admin.initialize_app(firebase_admin.credentials.Certificate("/home/pi/Desktop/Raspberry_Pi_Programs/Vitals/rpi-vitals-firebase-adminsdk-o250d-c3ab522ee5.json"), {"databaseURL":"XXXX"})
         self.retrieveSerialNumber()
         self.rpiVitalsDB = db.reference("/").child(self.rpiSerialNumber + "/")
         
-        self.twilioRaspberryPiVitalsClient = Client("AC326232047B7E0241C7B3D7428E077E25", "d2e2baec5e6ebb380e8ce899fec906b4")
+        self.twilioRaspberryPiVitalsClient = Client("XXXX", "XXXX")
         self.raspberryPiVitalsCPU = CPUTemperature()
         self.raspberryPiVitalsLoad = LoadAverage()
     def retrieveSerialNumber(self):
@@ -38,10 +38,10 @@ class RaspberryPiVitals:
                 self.rpiVitalsDB.child("Date & Time").set(str(datetime.datetime.now()))
                 
                 if self.raspberryPiVitalsCPU.temperature >= 90:
-                    self.twilioRaspberryPiVitalsClient.messages.create(to="+14084440130", from_="+15305573687", body="Your Raspberry Pi's CPU has risen to a severe temperature of " + str(self.raspberryPiVitalsCPU.temperature) + "º F. Rebooting now...")
+                    self.twilioRaspberryPiVitalsClient.messages.create(to="+XXXX", from_="+15305573687", body="Your Raspberry Pi's CPU has risen to a severe temperature of " + str(self.raspberryPiVitalsCPU.temperature) + "º F. Rebooting now...")
                     os.system("sudo reboot")
                 if self.raspberryPiVitalsLoad.load_average >= 0.90:
-                    self.twilioRaspberryPiVitalsClient.messages.create(to="+14084440130", from_="+15305573687", body="Your Raspberry Pi's Load Average has risen to a severe load of " + str(self.raspberryPiVitalsLoad.load_average) + ". Rebooting now...")
+                    self.twilioRaspberryPiVitalsClient.messages.create(to="+XXXX", from_="+15305573687", body="Your Raspberry Pi's Load Average has risen to a severe load of " + str(self.raspberryPiVitalsLoad.load_average) + ". Rebooting now...")
                     os.system("sudo reboot")
             except:
                 print("ERROR Collecting Vitals")
