@@ -10,7 +10,7 @@ import datetime
 class RaspberryPiVitals:
     
     def __init__(self):
-        firebase_admin.initialize_app(firebase_admin.credentials.Certificate("/home/pi/Desktop/Raspberry_Pi_Programs/Vitals/rpi-vitals-firebase-adminsdk-o250d-c3ab522ee5.json"), {"databaseURL":"XXXX"})
+        firebase_admin.initialize_app(firebase_admin.credentials.Certificate("XXXX.json"), {"databaseURL":"XXXX"})
         self.retrieveSerialNumber()
         self.rpiVitalsDB = db.reference("/").child(self.rpiSerialNumber + "/")
         
