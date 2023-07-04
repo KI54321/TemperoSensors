@@ -10,8 +10,8 @@ class InterestAssistant:
         
     def weatherIntent(self):
         
-        weatherLocationCoord = requests.get("https://api.ipdata.co?api-key=7d44ff756d003d34bd935df9dc7b4e1d59cf75f77cc32448db68b1a3").json()
-        weatherJSONRequest = requests.get("https://api.weatherbit.io/v2.0/forecast/minutely?lat=" + str(weatherLocationCoord["latitude"]) + "&lon=" + str(weatherLocationCoord["longitude"]) + "&key=d5d500e4803d47aeb904d9c7b6f617ab&units=I").json()
+        weatherLocationCoord = requests.get("https://api.ipdata.co?api-key=XXXX").json()
+        weatherJSONRequest = requests.get("https://api.weatherbit.io/v2.0/forecast/minutely?lat=" + str(weatherLocationCoord["latitude"]) + "&lon=" + str(weatherLocationCoord["longitude"]) + "&key=XXXX&units=I").json()
         weatherJSONData = (weatherJSONRequest["data"])
         
         didFindWeatherMatch = False
