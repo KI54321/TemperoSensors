@@ -15,7 +15,7 @@ class TemperoSensorsDriver:
 
     def __init__(self, sensorID):
         # Authenticates the TemperoSensors Firebase Database Application
-        firebase_admin.initialize_app(firebase_admin.credentials.Certificate("/temperosensors-firebase-adminsdk-49k00-4fdc22e590.json"), {"databaseURL":"https://temperosensors-default-rtdb.firebaseio.com/"})
+        firebase_admin.initialize_app(firebase_admin.credentials.Certificate("/XXXX.json"), {"databaseURL":"XXXX"})
 
 
         # FirebaseDatabase Reference
@@ -25,9 +25,9 @@ class TemperoSensorsDriver:
         self.getAllTemperoSensorDatabaseData()
         self.getCurrentTemprature()
            
-        self.temperoRefreshToken = "1//06ET53BQgeSfdCgYIARAAGAYSNwF-L9IrDXXX3IIHQgA26WXugYWCKC0b5Tq6ynBJNxkvmLQHGwlppbXzM48dPa_FsvyNYs3PXo4"
-        self.temperoThermostatDeviceID = "AVPHwEvPDSwQV6XAQLjrO9QQIxurpT5Vs7ns0ZkWonqnN6afdhDUklji7wXP45t9HOuQxRE8Qkee5UxByfPNkJ0CNzqpXg"
-        self.temperoGCPProjectID = "4acc3863-dacf-446b-9b56-a339a4ea8f45"
+        self.temperoRefreshToken = "XXXX"
+        self.temperoThermostatDeviceID = "XXXX"
+        self.temperoGCPProjectID = "XXXX"
         self.temperoCurrentThermostatMode = None
         self.temperoTempratureDisplay = TemperoSensorsDisplay.TemperoSensorsDisplay()
         
@@ -93,7 +93,7 @@ class TemperoSensorsDriver:
                 print("ERROR Monitering Data")
             
     def getNewAccessCodeNestThermostat(self):
-        nestThermostatAccessCodeRequest = requests.post("https://www.googleapis.com/oauth2/v4/token?client_id=1069978862635-epurbtin9o4s53i45gftds4tq88e0jpf.apps.googleusercontent.com&client_secret=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&refresh_token=" + self.temperoRefreshToken + "&grant_type=refresh_token")
+        nestThermostatAccessCodeRequest = requests.post("https://www.googleapis.com/oauth2/v4/token?client_id=XXXX&client_secret=XXXX&refresh_token=" + self.temperoRefreshToken + "&grant_type=refresh_token")
         return str(nestThermostatAccessCodeRequest.json()["access_token"])
     def getCurrentNestThermostatInformation(self):
 
@@ -150,7 +150,7 @@ class TemperoSensorsDriver:
                 self.temperoTempratureDisplay.displayTemperoTemprature(self.sensor_value)
             except:
                 print("ERROR Display")
-temperoMainDriverObject = TemperoSensorsDriver("7645b9f9")
+temperoMainDriverObject = TemperoSensorsDriver("XXXX")
 
 _thread.start_new_thread(temperoMainDriverObject.updateCurrentData, ())
 _thread.start_new_thread(temperoMainDriverObject.displayTemperoSensor, ())
